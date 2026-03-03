@@ -100,6 +100,30 @@ Then:
 
 ## How refresh works
 
+```mermaid
+graph TD
+	A["Scheduled job<br/>cron / Airflow / Prefect"] --> B["Fetch upstream last-updated<br/>SDMX annotations (Eurostat)"]
+	B --> C{"Local metadata.json<br/>exists?"}
+	C -- Yes --> D{"Upstream<br/>changed?"}
+	C -- No --> E0
+
+	D -- No --> G["No new version<br/>Keep dataset.csv<br/>Ensure metadata + codelists"]
+	D -- Yes --> E1
+
+	subgraph DL[" "]
+		direction LR
+		E1["Download new slice"]
+		E0["Download initial slice"]
+	end
+	style DL fill:transparent,stroke:transparent
+
+	E0 --> F["Append rows to dataset.csv<br/>append-only, adds last_updated column"]
+	E1 --> F
+	F --> H["Update metadata history<br/>Export codelists"]
+	G --> I["Warehouse ingestion step<br/>dbt / COPY / load job"]
+	H --> I
+```
+
 `fetch()` is designed for scheduled refresh jobs:
 
 1. Fetch upstream “last updated” timestamp.

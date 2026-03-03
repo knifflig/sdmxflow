@@ -33,7 +33,8 @@
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"ms-azuretools.vscode-docker"
+				"ms-azuretools.vscode-docker",
+				"charliermarsh.ruff"
 			]
 		}
 	},
