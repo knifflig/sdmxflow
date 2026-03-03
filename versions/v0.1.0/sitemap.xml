@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+      <url>
+        <loc>https://knifflig.github.io/sdmxflow/</loc>
+      </url>
+      <url>
+        <loc>https://knifflig.github.io/sdmxflow/getting-started/</loc>
+      </url>
+      <url>
+        <loc>https://knifflig.github.io/sdmxflow/examples/</loc>
+      </url>
+      <url>
+        <loc>https://knifflig.github.io/sdmxflow/output-layout/</loc>
+      </url>
+      <url>
+        <loc>https://knifflig.github.io/sdmxflow/logging/</loc>
+      </url>
+      <url>
+        <loc>https://knifflig.github.io/sdmxflow/api/</loc>
+      </url>
+      <url>
+        <loc>https://knifflig.github.io/sdmxflow/development/</loc>
+      </url>
+      <url>
+        <loc>https://knifflig.github.io/sdmxflow/credits/</loc>
+      </url>
+</urlset>
