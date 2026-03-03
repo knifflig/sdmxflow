@@ -1,5 +1,7 @@
 # Examples
 
+This page provides runnable end-to-end examples (live network) that produce the full artifact layout and are suitable for copy/paste into scheduled jobs.
+
 ## CLI demo (live network)
 
 If you want a runnable, end-to-end example (good for trying `sdmxflow` the first time
@@ -45,5 +47,6 @@ uv run python scripts/download_dataset.py \
 
 Next:
 
-- See [Output layout](output-layout.md) for the artifact contract.
-- See [Logging](logging.md) for the library's INFO-level logging contract.
+- See [Output Artifacts (Contract)](output-layout.md) for the artifact contract.
+- See [Scheduling & Deployment](scheduling-and-deployment.md) for orchestration patterns.
+- See [Integration Patterns](integration-patterns.md) for warehouse loading examples.

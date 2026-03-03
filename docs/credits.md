@@ -1,5 +1,7 @@
 # Credits & License
 
+This page lists acknowledgements for influences and upstream dependencies, plus the project license.
+
 ## Credits
 
 - The early direction for warehouse-friendly SDMX refresh workflows was influenced by a `dlt` SDMX extension gist shared by Martin Salo.

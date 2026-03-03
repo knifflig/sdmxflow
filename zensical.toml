@@ -1,6 +1,6 @@
 [project]
 site_name = "sdmxflow"
-site_description = "Download SDMX datasets into a reproducible, append-only on-disk layout for data warehouse refresh workflows."
+site_description = "SDMX ingestion for data warehouse ETL/ELT: reproducible, append-only artifacts (facts CSV + metadata history + codelist exports) for scheduled refresh workflows."
 site_url = "https://knifflig.github.io/sdmxflow/"
 site_author = "Henry Zehe"
 
@@ -12,13 +12,24 @@ repo_name = "knifflig/sdmxflow"
 edit_uri = "edit/main/docs/"
 
 nav = [
-  { "Home" = "index.md" },
-  { "Getting started" = "getting-started.md" },
-  { "Examples" = "examples.md" },
-  { "Output layout" = "output-layout.md" },
-  { "Logging" = "logging.md" },
-  { "API" = "api.md" },
-  { "Development" = "development.md" },
+  { "Overview" = "index.md" },
+  { "Getting Started" = "getting-started.md" },
+  { "Workflows" = [
+    { "Concepts & Design" = "concepts-and-design.md" },
+    { "Output Artifacts (Contract)" = "output-layout.md" },
+    { "Scheduling & Deployment" = "scheduling-and-deployment.md" },
+    { "Integration Patterns" = "integration-patterns.md" },
+  ] },
+  { "Reference" = [
+    { "Configuration Reference" = "api.md" },
+    { "Logging" = "logging.md" },
+    { "Examples" = "examples.md" },
+    { "Provider Support" = "provider-support.md" },
+    { "FAQ & Troubleshooting" = "faq.md" },
+    { "Changelog" = "changelog.md" },
+    { "Glossary" = "glossary.md" },
+  ] },
+  { "Development & Contributing" = "development.md" },
   { "Credits & License" = "credits.md" },
 ]
 

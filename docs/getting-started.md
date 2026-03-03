@@ -1,25 +1,26 @@
-# Getting started
+# Getting Started
+
+This page gets you from “install” to a first successful fetch, and explains what changes on the second run (append-only, incremental refresh).
 
 ## Installation
 
+### Python versions
+
+`sdmxflow` supports Python **3.11** and **3.12**.
+
 ### From PyPI
 
-Once published:
-
 ```bash
-uv pip install sdmxflow
+pip install sdmxflow
 ```
 
-If you want to manage `sdmxflow` as part of a Python project, you can also add it
-to your project's dependencies with `uv`:
+If you use `uv`:
 
 ```bash
 uv add sdmxflow
 ```
 
-### From source (this repository)
-
-This project uses `uv` for development.
+### From source (contributors)
 
 ```bash
 git clone https://github.com/knifflig/sdmxflow
@@ -27,60 +28,81 @@ cd sdmxflow
 uv sync --group dev
 ```
 
-## Documentation site (Zensical)
-
-This repository uses Zensical to render the docs.
-
-Preview locally:
-
-```bash
-uv run zensical serve
-```
-
-Build the static site:
-
-```bash
-uv run zensical build --clean
-```
-
-## Basic usage
+## Minimal working example
 
 The main entrypoint is `SdmxDataset`.
 
 ```python
 from pathlib import Path
 
-from sdmxflow.dataset import SdmxDataset
+from sdmxflow import SdmxDataset
 
 ds = SdmxDataset(
-    out_dir=Path("./out/my_dataset"),
+    out_dir=Path("./out/lfsa_egai2d"),
     source_id="ESTAT",
     dataset_id="lfsa_egai2d",
 )
 
 result = ds.fetch()
-print(result.appended)
+print("appended:", result.appended)
 ```
 
-## Refresh behavior
+## Parameters (what they mean)
 
-`fetch()` is designed for scheduled refresh jobs:
+- `out_dir` (required): where artifacts are written and persisted between runs.
+- `source_id` (required): the provider/source identifier (currently `"ESTAT"`).
+- `dataset_id` (required): dataset identifier within the provider.
 
-1. Query the provider for the dataset's upstream "last updated" timestamp.
-2. Compare it to the latest recorded version in `metadata.json`.
-3. If unchanged, skip download.
-4. If changed, download and append a new slice to `dataset.csv`, then update metadata and codelists.
+Common optional parameters:
 
-## Parameters you will commonly use
+- `agency_id`: defaults to `source_id` for `ESTAT`.
+- `key`: provider-specific SDMX key restriction.
+    - For `ESTAT`, use `None` to request the full dataset; `""` means “provider default” (currently also the full dataset).
+- `params`: provider-specific passthrough parameters (e.g., time window).
+- `save_logs=True`: writes a per-run debug log file under `<out_dir>/logs/`.
 
-- `out_dir`: the dataset artifact folder
-- `source_id`: currently only `"ESTAT"`
-- `dataset_id`: Eurostat dataset id (e.g. `"lfsa_egai2d"`)
-- `save_logs=True`: write a per-run debug log file under `<out_dir>/logs/`
+For the full parameter reference and defaults, see [Configuration Reference](api.md).
 
-For the full parameter list, see [API](api.md).
+## What happens on first run vs second run
 
-## Runnable example script
+### First successful run
 
-For an end-to-end example you can run immediately (including logging and output
-artifacts), see [Examples](examples.md).
+- No `metadata.json` exists yet, so `sdmxflow` initializes metadata.
+- It fetches upstream “last updated” metadata.
+- It downloads the dataset slice and creates `dataset.csv`.
+- It writes `metadata.json` and exports `codelists/`.
+
+### Second (and later) runs
+
+`sdmxflow` compares the upstream “last updated” timestamp to the latest locally recorded one:
+
+- If unchanged: it **skips the dataset download** and does not append to `dataset.csv`.
+- If changed: it **downloads and appends** a new slice and updates metadata/codelists.
+
+> **Important**
+> `dataset.csv` is append-only across versions. It is normal for the same “logical row” to appear multiple times across different `last_updated` values.
+
+## Expected output folder tree
+
+After a successful fetch you should see:
+
+```text
+<out_dir>/
+    dataset.csv
+    metadata.json
+    codelists/
+        <CODELIST_ID>.csv
+```
+
+If you enabled per-run log capture:
+
+```text
+<out_dir>/logs/
+    <agency>__<dataset>__<timestamp>.log
+```
+
+Next:
+
+- Read [Output Artifacts (Contract)](output-layout.md) for file semantics and examples.
+- See [Scheduling & Deployment](scheduling-and-deployment.md) for production patterns.
+- See [Integration Patterns](integration-patterns.md) for warehouse loading examples.
