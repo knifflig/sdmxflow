@@ -39,20 +39,25 @@ jobs:
       - name: Build site
         run: uv run zensical build --clean
 
-      - name: Checkout previously published site (docs-history)
-        uses: actions/checkout@v5
-        continue-on-error: true
-        with:
-          ref: docs-history
-          path: _previous_site
-          fetch-depth: 1
+      - name: Fetch previously published site (docs-history)
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf _previous_site
+          mkdir -p _previous_site
+
+          if git ls-remote --exit-code --heads origin docs-history >/dev/null 2>&1; then
+            git fetch --depth=1 origin docs-history
+            git archive --format=tar FETCH_HEAD | tar -x -C _previous_site
+            echo "Found docs-history branch; restored previous site."
+          else
+            echo "No docs-history branch found yet; continuing with fresh site."
+          fi
 
       - name: Prepare versioned site output
         shell: bash
         run: |
           set -euo pipefail
-
-          VERSION="${GITHUB_REF_NAME}"
 
           # Start from the previously published content (if present) so we can
           # keep older versions around across deployments.
@@ -69,9 +74,14 @@ jobs:
             --exclude='.nojekyll' \
             "site/" "public/"
 
-          # Also publish this release under versions/<tag>/.
-          mkdir -p "public/versions/${VERSION}/"
-          rsync -a --delete "site/" "public/versions/${VERSION}/"
+          # Also publish this release under versions/<tag>/ (tags only).
+          if [ "${GITHUB_REF_TYPE:-}" = "tag" ]; then
+            VERSION="${GITHUB_REF_NAME}"
+            mkdir -p "public/versions/${VERSION}/"
+            rsync -a --delete "site/" "public/versions/${VERSION}/"
+          else
+            echo "Not a tag ref; skipping versions/<tag>/ snapshot."
+          fi
 
       - uses: actions/upload-pages-artifact@v4
         with:
@@ -86,3 +96,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: docs-history
           publish_dir: public
+          force_orphan: true
