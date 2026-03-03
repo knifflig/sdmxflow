@@ -237,3 +237,43 @@ else
   echo "[postCreate] NOTE: GIT_PAT is not set; HTTPS git credential bootstrap skipped."
 fi
 
+
+echo "[postCreate] Ensuring GitHub CLI (gh) is installed..."
+if command -v gh >/dev/null 2>&1; then
+  echo "[postCreate] gh is already installed."
+else
+  echo "[postCreate] gh not found; attempting installation via apt (best-effort)."
+
+  install_gh() {
+    export DEBIAN_FRONTEND=noninteractive
+    apt-get update -y && apt-get install -y gh
+  }
+
+  # In devcontainers, sudo is usually available. Support both root and non-root.
+  set +e
+  if [[ "$(id -u)" == "0" ]]; then
+    install_gh
+    RC=$?
+  elif command -v sudo >/dev/null 2>&1; then
+    sudo -n true >/dev/null 2>&1
+    if [[ $? -eq 0 ]]; then
+      sudo bash -lc "$(declare -f install_gh); install_gh"
+      RC=$?
+    else
+      echo "[postCreate] NOTE: sudo is not available without a password; cannot install gh automatically."
+      RC=1
+    fi
+  else
+    echo "[postCreate] NOTE: sudo not available; cannot install gh automatically."
+    RC=1
+  fi
+  set -e
+
+  if [[ $RC -eq 0 ]]; then
+    echo "[postCreate] gh installed successfully."
+  else
+    echo "[postCreate] WARNING: Unable to install gh automatically."
+    echo "[postCreate] You can install it manually inside the container (as root), or use SSH auth instead."
+  fi
+fi
+

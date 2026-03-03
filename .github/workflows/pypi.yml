@@ -1,0 +1,71 @@
+name: Release (PyPI)
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - uses: astral-sh/setup-uv@v4
+
+      - name: Install dev dependencies
+        run: uv sync --group dev
+
+      - name: Validate tag matches package version
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="${GITHUB_REF_NAME}"
+          python - "$TAG" <<'PY'
+          import re
+          import sys
+          import tomllib
+
+          tag = sys.argv[1]
+          if not re.fullmatch(r"v\d+\.\d+\.\d+", tag):
+              raise SystemExit(f"Tag must look like vX.Y.Z, got: {tag}")
+
+          version_from_tag = tag[1:]
+
+          with open("pyproject.toml", "rb") as f:
+              pyproject = tomllib.load(f)
+
+          version = pyproject["project"]["version"]
+          if version != version_from_tag:
+              raise SystemExit(
+                  "Tag/version mismatch:\n"
+                  f"  tag:       {version_from_tag}\n"
+                  f"  pyproject: {version}\n"
+                  "Update pyproject.toml or retag the release."
+              )
+
+          print(f"OK: tag {tag} matches pyproject version {version}")
+          PY
+
+      - name: Run tests
+        run: uv run pytest
+
+      - name: Build distributions
+        run: uv run python -m build
+
+      - name: Check distributions
+        run: uv run twine check --strict dist/*
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist

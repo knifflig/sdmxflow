@@ -2,13 +2,11 @@ name: Documentation
 
 on:
   push:
-    branches:
-      - master
-      - main
-  workflow_dispatch:
+    tags:
+      - "v*"
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -36,9 +34,50 @@ jobs:
       - name: Build site
         run: uv run zensical build --clean
 
+      - name: Checkout previously published site (gh-pages)
+        uses: actions/checkout@v5
+        continue-on-error: true
+        with:
+          ref: gh-pages
+          path: _previous_site
+          fetch-depth: 1
+
+      - name: Prepare versioned site output
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          VERSION="${GITHUB_REF_NAME}"
+
+          # Start from the previously published content (if present) so we can
+          # keep older versions around across deployments.
+          mkdir -p public
+          if [ -d "_previous_site" ]; then
+            rsync -a --delete --exclude='.git/' "_previous_site/" "public/"
+          fi
+
+          # Publish the current version at the site root, but keep all content
+          # under versions/ (older releases).
+          rsync -a --delete \
+            --exclude='versions/' \
+            --exclude='CNAME' \
+            --exclude='.nojekyll' \
+            "site/" "public/"
+
+          # Also publish this release under versions/<tag>/.
+          mkdir -p "public/versions/${VERSION}/"
+          rsync -a --delete "site/" "public/versions/${VERSION}/"
+
       - uses: actions/upload-pages-artifact@v4
         with:
-          path: site
+          path: public
 
       - uses: actions/deploy-pages@v4
         id: deployment
+
+      - name: Persist published site to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: public
