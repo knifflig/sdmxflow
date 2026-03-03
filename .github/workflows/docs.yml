@@ -2,8 +2,13 @@ name: Documentation
 
 on:
   push:
+    branches:
+      - master
+      - main
     tags:
       - "v*"
+
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -34,11 +39,11 @@ jobs:
       - name: Build site
         run: uv run zensical build --clean
 
-      - name: Checkout previously published site (gh-pages)
+      - name: Checkout previously published site (docs-history)
         uses: actions/checkout@v5
         continue-on-error: true
         with:
-          ref: gh-pages
+          ref: docs-history
           path: _previous_site
           fetch-depth: 1
 
@@ -75,9 +80,9 @@ jobs:
       - uses: actions/deploy-pages@v4
         id: deployment
 
-      - name: Persist published site to gh-pages branch
+      - name: Persist published site to docs-history branch
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_branch: gh-pages
+          publish_branch: docs-history
           publish_dir: public
