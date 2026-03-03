@@ -176,6 +176,8 @@ Non-goals (for now):
 pip install sdmxflow
 ```
 
+If you run `sdmxflow` inside an orchestration environment that pins `packaging<25.1` (for example, Prefect 3.6.x), install `sdmxflow>=0.1.1` so that dependency resolution can avoid `sdmx1==2.25.1` (which declares `packaging>=26`).
+
 ### From source (this repository)
 
 This project uses `uv` for development.

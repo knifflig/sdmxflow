@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "sdmxflow"
-version = "0.1.0"
+version = "0.1.1"
 description = "Download SDMX datasets into a reproducible, append-only on-disk layout for data warehouse refresh workflows."
 readme = "README.md"
 requires-python = ">=3.11,<3.13"
@@ -29,7 +29,7 @@ dependencies = [
     "pyarrow>=23.0.1",
     "pydantic>=2.12.5",
     "requests>=2.31.0",
-    "sdmx1>=2.25.1",
+    "sdmx1>=2.24.0,<2.25.1",
 ]
 
 [project.urls]

@@ -8,6 +8,12 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-03-03
+
+### Fixed
+
+- Relaxed the `sdmx1` dependency upper bound to avoid a transitive `packaging>=26` requirement introduced in `sdmx1==2.25.1`, which can make `sdmxflow` incompatible with orchestration stacks that currently pin `packaging<25.1` (e.g. Prefect 3.6.x).
+
 ## [0.1.0] - 2026-03-03
 
 Initial public release.
@@ -57,3 +63,5 @@ Initial public release.
 - Output format is focused on CSV + JSON sidecar metadata; additional export formats may be added in future versions.
 
 [0.1.0]: https://github.com/knifflig/sdmxflow/releases/tag/v0.1.0
+
+[0.1.1]: https://github.com/knifflig/sdmxflow/releases/tag/v0.1.1
