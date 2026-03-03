@@ -1,0 +1,1 @@
+"""Metadata schema + writer (internal)."""

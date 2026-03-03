@@ -1,0 +1,33 @@
+[project]
+site_name = "sdmxflow"
+site_description = "Download SDMX datasets into a reproducible, append-only on-disk layout for data warehouse refresh workflows."
+site_url = "https://knifflig.github.io/sdmxflow/"
+site_author = "Henry Zehe"
+
+docs_dir = "docs"
+site_dir = "site"
+
+repo_url = "https://github.com/knifflig/sdmxflow"
+repo_name = "knifflig/sdmxflow"
+edit_uri = "edit/main/docs/"
+
+nav = [
+  { "Home" = "index.md" },
+  { "Getting started" = "getting-started.md" },
+  { "Examples" = "examples.md" },
+  { "Output layout" = "output-layout.md" },
+  { "Logging" = "logging.md" },
+  { "API" = "api.md" },
+  { "Development" = "development.md" },
+  { "Credits & License" = "credits.md" },
+]
+
+[project.theme]
+variant = "classic"
+features = [
+  "content.action.edit",
+  "content.action.view",
+]
+
+[project.theme.icon]
+repo = "fontawesome/brands/github"

@@ -1,0 +1,81 @@
+[build-system]
+requires = ["hatchling>=1.25.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "sdmxflow"
+version = "0.1.0"
+description = "Download SDMX datasets into a reproducible, append-only on-disk layout for data warehouse refresh workflows."
+readme = "README.md"
+requires-python = ">=3.11,<3.13"
+license = { file = "LICENSE.md" }
+authors = [{ name = "Henry Zehe" }]
+keywords = ["sdmx", "eurostat", "etl", "elt", "data-warehouse", "data-engineering", "metadata"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Database",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development :: Libraries",
+]
+dependencies = [
+    "pyarrow>=23.0.1",
+    "pydantic>=2.12.5",
+    "requests>=2.31.0",
+    "sdmx1>=2.25.1",
+]
+
+[project.urls]
+Homepage = "https://github.com/knifflig/sdmxflow"
+Repository = "https://github.com/knifflig/sdmxflow"
+Issues = "https://github.com/knifflig/sdmxflow/issues"
+
+[project.optional-dependencies]
+dev = [
+    "zensical",
+    "ruff",
+    "pytest",
+    "pytest-cov",
+    "build",
+    "twine",
+]
+
+[dependency-groups]
+dev = [
+    "zensical",
+    "ruff",
+    "pytest",
+    "pytest-cov",
+    "build",
+    "twine",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["sdmxflow"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/sdmxflow",
+    "/README.md",
+    "/LICENSE.md",
+    "/pyproject.toml",
+]
+
+[tool.uv.sources]
+sdmxflow = { path = "sdmxflow", editable = true }
+
+[tool.coverage.run]
+source = ["sdmxflow"]
+branch = false
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+precision = 0

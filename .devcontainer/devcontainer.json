@@ -1,0 +1,55 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/python
+{
+	"name": "Python 3",
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+	"updateRemoteUserUID": true,
+	"containerEnv": {
+		"UV_CACHE_DIR": "/workspaces/sdmxflow/.uv-cache"
+	},
+	"runArgs": [
+		"--privileged",
+		"--env-file",
+		".devcontainer/setup.env"
+	],
+	"mounts": [
+		"source=${localEnv:HOME}/.ssh,target=/mnt/host-ssh,type=bind,consistency=cached,readonly"
+	],
+	"postCreateCommand": "bash .devcontainer/postCreate.sh",
+	"features": {
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {
+			"moby": false
+		},
+		"ghcr.io/itsmechlark/features/postgresql:1": {},
+		"ghcr.io/va-h/devcontainers-features/uv:1": {}
+	},
+	"forwardPorts": [
+		3000,
+		3001,
+		5433
+	],
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-azuretools.vscode-docker"
+			]
+		}
+	},
+
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	// "features": {},
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [],
+
+	// Use 'postCreateCommand' to run commands after the container is created.
+	// "postCreateCommand": "pip3 install --user -r requirements.txt",
+
+	// Configure tool-specific properties.
+	// "customizations": {},
+
+	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+	// "remoteUser": "root"
+}

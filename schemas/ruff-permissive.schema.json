@@ -1,0 +1,6 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Permissive Ruff TOML schema (workaround for Taplo/SchemaStore mismatches)",
+    "type": "object",
+    "additionalProperties": true
+}

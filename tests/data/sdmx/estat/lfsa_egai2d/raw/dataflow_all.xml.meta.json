@@ -1,0 +1,26 @@
+{
+  "downloaded_at": "2026-03-03T11:20:36.345449+00:00",
+  "request": {
+    "force": false,
+    "key": null,
+    "params": {
+      "references": "all"
+    },
+    "provider": null,
+    "resource_id": "lfsa_egai2d",
+    "resource_type": "dataflow",
+    "source_id": "ESTAT",
+    "version": null
+  },
+  "response": {
+    "content_disposition": "attachment; filename=\"ESTAT_LFSA_EGAI2D_1.0.xml\"",
+    "content_type": "application/vnd.sdmx.structure+xml;version=2.1",
+    "headers": {
+      "date": "Tue, 03 Mar 2026 11:20:36 GMT",
+      "etag": null,
+      "last_modified": null
+    },
+    "status_code": 200,
+    "url": "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/dataflow/ESTAT/lfsa_egai2d/latest?references=none"
+  }
+}
