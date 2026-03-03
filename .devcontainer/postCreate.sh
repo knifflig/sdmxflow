@@ -71,42 +71,6 @@ if [[ -d "$HOST_SSH_DIR" ]]; then
     install -m 600 "$HOST_SSH_DIR/known_hosts" "$SSH_DIR/known_hosts" 2>/dev/null || true
   fi
 
-  SELECTED_KEY_DEST=""
-  if [[ -n "$SSH_KEY_PATH" ]]; then
-    SELECTED_HOST_KEY="$(resolve_host_key_from_env "$SSH_KEY_PATH" || true)"
-    if [[ -n "$SELECTED_HOST_KEY" && -f "$SELECTED_HOST_KEY" ]]; then
-      SELECTED_KEY_NAME="$(basename "$SELECTED_HOST_KEY")"
-      SELECTED_KEY_DEST="$SSH_DIR/$SELECTED_KEY_NAME"
-
-      if [[ ! -f "$SELECTED_KEY_DEST" ]]; then
-        install -m 600 "$SELECTED_HOST_KEY" "$SELECTED_KEY_DEST" 2>/dev/null || true
-      fi
-      if [[ -f "$SELECTED_HOST_KEY.pub" && ! -f "$SELECTED_KEY_DEST.pub" ]]; then
-        install -m 644 "$SELECTED_HOST_KEY.pub" "$SELECTED_KEY_DEST.pub" 2>/dev/null || true
-      fi
-
-      SSH_CONFIG_FILE="$SSH_DIR/config"
-      touch "$SSH_CONFIG_FILE" 2>/dev/null || true
-      chmod 600 "$SSH_CONFIG_FILE" 2>/dev/null || true
-
-      if ! grep -q "IdentityFile ~/.ssh/$SELECTED_KEY_NAME" "$SSH_CONFIG_FILE" 2>/dev/null; then
-        {
-          echo ""
-          echo "# sdmxflow devcontainer managed block"
-          echo "Host github.com"
-          echo "  HostName github.com"
-          echo "  User git"
-          echo "  IdentityFile ~/.ssh/$SELECTED_KEY_NAME"
-          echo "  IdentitiesOnly yes"
-        } >>"$SSH_CONFIG_FILE"
-      fi
-
-      echo "[postCreate] Using SSH key from SSH_KEY_PATH: ~/.ssh/$SELECTED_KEY_NAME"
-    else
-      echo "[postCreate] WARNING: SSH_KEY_PATH is set but key was not found in host mount: $SSH_KEY_PATH"
-    fi
-  fi
-
   # Copy common key names if present (idempotent; do not overwrite)
   for key in id_ed25519 id_rsa id_ecdsa; do
     if [[ -f "$HOST_SSH_DIR/$key" && ! -f "$SSH_DIR/$key" ]]; then
@@ -120,6 +84,41 @@ else
   echo "[postCreate] NOTE: No host SSH mount found at $HOST_SSH_DIR."
   echo "[postCreate] If you need private GitHub access, either mount ~/.ssh (recommended mount target is $HOST_SSH_DIR) or use SSH agent forwarding."
 fi
+
+echo "[postCreate] Ensuring repo-specific GitHub SSH key exists..."
+REPO_SSH_KEY="$SSH_DIR/id_ed25519_sdmxflow"
+
+if [[ ! -f "$REPO_SSH_KEY" ]]; then
+  ssh-keygen -t ed25519 -C "sdmxflow (devcontainer)" -f "$REPO_SSH_KEY" -N "" >/dev/null
+  chmod 600 "$REPO_SSH_KEY" 2>/dev/null || true
+fi
+
+if [[ ! -f "$REPO_SSH_KEY.pub" ]]; then
+  ssh-keygen -y -f "$REPO_SSH_KEY" >"$REPO_SSH_KEY.pub" 2>/dev/null || true
+  chmod 644 "$REPO_SSH_KEY.pub" 2>/dev/null || true
+fi
+
+# Ensure this repository uses SSH + the repo-specific key.
+# (core.sshCommand is repo-local, so it won't affect other repos.)
+git config --local core.sshCommand "ssh -i ~/.ssh/$(basename "$REPO_SSH_KEY") -o IdentitiesOnly=yes" || true
+
+# If the remote is currently HTTPS, flip it to SSH so the key is actually used.
+set +e
+REMOTE_NAME=$(git remote | head -n 1)
+REMOTE_URL=""
+if [[ -n "$REMOTE_NAME" ]]; then
+  REMOTE_URL=$(git remote get-url "$REMOTE_NAME" 2>/dev/null)
+fi
+set -e
+
+if [[ -n "$REMOTE_NAME" && "$REMOTE_URL" == https://github.com/*/*.git ]]; then
+  SSH_URL="git@github.com:${REMOTE_URL#https://github.com/}"
+  git remote set-url "$REMOTE_NAME" "$SSH_URL" 2>/dev/null || true
+  echo "[postCreate] Switched remote '$REMOTE_NAME' to SSH: $SSH_URL"
+fi
+
+echo "[postCreate] Repo SSH public key (add to GitHub SSH keys):"
+cat "$REPO_SSH_KEY.pub" || true
 
 # Best-effort permissions; on bind mounts this may fail (that's ok).
 chmod 700 "$SSH_DIR" 2>/dev/null || true
